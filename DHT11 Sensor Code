@@ -1,0 +1,93 @@
+Code for DHT 11 Sensor  :
+
+
+#include "DHT.h"
+#define DHTPIN 2
+#define DHTTYPE DHT22 
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("DHTxx test!"));
+  dht.begin();
+}
+
+void loop() {
+  delay(2000);
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+
+  float hif = dht.computeHeatIndex(f, h);
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("%  Temperature: "));
+  Serial.print(t);
+  Serial.print(F("°C "));
+  Serial.print(f);
+  Serial.print(F("°F  Heat index: "));
+  Serial.print(hic);
+  Serial.print(F("°C "));
+  Serial.print(hif);
+  Serial.println(F("°F"));
+}
+
+
+
+
+Code for Anemometer, Wind Vane and Rain Gauge ( Weather Monitoring Kit) :
+
+
+#include "SparkFun_Weather_Meter_Kit_Arduino_Library.h"
+
+// Pins for Weather Carrier with ESP32 Processor Board
+int windDirectionPin = 35;
+int windSpeedPin = 14;
+int rainfallPin = 27;
+
+// Create an instance of the weather meter kit
+SFEWeatherMeterKit weatherMeterKit(windDirectionPin, windSpeedPin, rainfallPin);
+
+void setup()
+{
+    Serial.begin(115200);
+    Serial.println(F("SparkFun Weather Meter Kit Example 1 - Basic Readings"));
+    Serial.println();
+    Serial.println(F("Note - this example demonstrates the minimum code required"));
+    Serial.println(F("for operation, and may not be accurate for your project."));
+    Serial.println(F("It is recommended to check out the calibration examples."));
+
+#ifdef SFE_WMK_PLAFTORM_UNKNOWN
+
+    weatherMeterKit.setADCResolutionBits(10);
+    
+    Serial.println(F("Unknown platform! Please edit the code with your ADC resolution!"));
+    Serial.println();
+#endif
+    // Begin weather meter kit
+    weatherMeterKit.begin();
+}
+
+void loop()
+{
+    // Print data from weather meter kit
+    Serial.print(F("Wind direction (degrees): "));
+    Serial.print(weatherMeterKit.getWindDirection(), 1);
+    Serial.print(F("\t\t"));
+    Serial.print(F("Wind speed (kph): "));
+    Serial.print(weatherMeterKit.getWindSpeed(), 1);
+    Serial.print(F("\t\t"));
+    Serial.print(F("Total rainfall (mm): "));
+    Serial.println(weatherMeterKit.getTotalRainfall(), 1);
+
+    // Only print once per second
+    delay(1000);
+}
